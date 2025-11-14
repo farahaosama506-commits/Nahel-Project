@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مؤسسة نحل - تمكين الشباب وبناء المستقبل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- شريط التنقل -->
+        <nav class="navbar" :class="{ 'scrolled': isScrolled }">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-honeycomb"></i>
+                    <span>مؤسسة نحل</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" @click="smoothScroll">الرئيسية</a></li>
+                    <li><a href="#about" @click="smoothScroll">من نحن</a></li>
+                    <li class="dropdown">
+                        <a href="#about" @click="toggleDropdown">المزيد <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#timeline" @click="smoothScroll">رحلتنا</a></li>
+                            <li><a href="#goals" @click="smoothScroll">أهدافنا</a></li>
+                            <li><a href="#vision" @click="smoothScroll">تطلعاتنا</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#programs" @click="smoothScroll">برامجنا</a></li>
+                    <li><a href="#teams" @click="smoothScroll">فريقنا</a></li>
+                    <li><a href="#contact" @click="smoothScroll">اتصل بنا</a></li>
+                </ul>
+                <div class="hamburger" @click="toggleMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- القسم الرئيسي -->
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <div class="hexagon-main">
+                    <i class="fas fa-honeycomb"></i>
+                    <h1>مؤسسة نحل</h1>
+                    <p>شباب متمكن ومستقبل مستدام</p>
+                </div>
+                <div class="scroll-indicator">
+                    <span></span>
+                </div>
+            </div>
+            <div class="hexagon-grid">
+                <div class="hexagon" v-for="n in 18" :key="n" :style="getHexagonStyle(n)"></div>
+            </div>
+        </section>
+
+        <!-- قسم من نحن -->
+        <section id="about" class="section">
+            <div class="container">
+                <h2 class="section-title">من نحن</h2>
+                <div class="about-content">
+                    <div class="about-text" :class="{ 'animate': aboutAnimated }">
+                        <p>مؤسسة نحل، وهي منظمة خاصة غير ربحية تم تأسيسها في 2 نيسان 2024 بموجب القرار رقم 776 من وزارة الشؤون الاجتماعية والعمل في سوريا. بدأت رحلتنا في أواخر عام 2014 بتشكيل فريق ألوان الشبابي التطوعي بمدينة سلمية في محافظة حماة.</p>
+                        <p>مؤسسة نحل هي منظمة خاصة غير ربحية ذات شخصية اعتبارية مستقلة وفقاً لأحكام قانون الجمعيات والمؤسسات الخاصة رقم 93 لعام 1958، ومرخصة بموجب القرار رقم 776 بتاريخ 2 أبريل 2024.</p>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat" v-for="stat in stats" :key="stat.id" :class="{ 'animate': aboutAnimated }">
+                            <div class="stat-icon">
+                                <i :class="stat.icon"></i>
+                            </div>
+                            <div class="stat-number">{{ stat.number }}+</div>
+                            <div class="stat-label">{{ stat.label }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم الجدول الزمني -->
+        <section id="timeline" class="section dark-section">
+            <div class="container">
+                <h2 class="section-title">رحلة مؤسسة نحل</h2>
+                <div class="timeline-container">
+                    <div class="timeline-progress" :style="{ width: timelineProgress + '%' }"></div>
+                    <div class="timeline-scroll-container">
+                        <div class="timeline-years">
+                            <div class="timeline-year-marker" 
+                                 v-for="(item, index) in timeline" 
+                                 :key="item.year"
+                                 :class="{ 'active': currentTimelineIndex === index }"
+                                 @click="setTimelineIndex(index)">
+                                <span>{{ item.year }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline" ref="timeline">
+                        <div class="timeline-item active">
+                            <div class="timeline-year">{{ currentTimelineItem.year }}</div>
+                            <div class="timeline-content">
+                                <h3>{{ currentTimelineItem.title }}</h3>
+                                <p>{{ currentTimelineItem.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-controls">
+                    <button @click="prevTimeline" :disabled="currentTimelineIndex <= 0">
+                        <i class="fas fa-chevron-right"></i> السنة السابقة
+                    </button>
+                    <button @click="nextTimeline" :disabled="currentTimelineIndex >= timeline.length - 1">
+                        السنة التالية <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button @click="toggleAutoScroll" :class="{ 'active': autoScrollActive }">
+                        <i :class="autoScrollActive ? 'fas fa-pause' : 'fas fa-play'"></i> 
+                        {{ autoScrollActive ? 'إيقاف' : 'تشغيل' }} التمرير التلقائي
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم أهدافنا -->
+        <section id="goals" class="section">
+            <div class="container">
+                <h2 class="section-title">أهدافنا</h2>
+                <div class="goals-grid">
+                    <div class="goal-card" v-for="goal in goals" :key="goal.id" 
+                         :class="{ 'animate': goalsAnimated }">
+                        <div class="goal-icon">
+                            <i :class="goal.icon"></i>
+                        </div>
+                        <h3>{{ goal.title }}</h3>
+                        <p>{{ goal.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم تطلعاتنا -->
+        <section id="vision" class="section dark-section">
+            <div class="container">
+                <h2 class="section-title">تطلعاتنا نحو المستقبل</h2>
+                <div class="vision-content" :class="{ 'animate': visionAnimated }">
+                    <div class="vision-text">
+                        <p>نسعى لتحقيق مجتمع متكامل حيث يكون التعليم متاحاً للجميع، والتطوع ثقافة مجتمعية، والتعاون أساس التقدم.</p>
+                    </div>
+                    <div class="vision-timeline">
+                        <div class="timeline-item" v-for="item in futureTimeline" :key="item.year">
+                            <div class="timeline-year">{{ item.year }}</div>
+                            <div class="timeline-content">{{ item.text }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم برامجنا -->
+        <section id="programs" class="section">
+            <div class="container">
+                <h2 class="section-title">برامجنا</h2>
+                <div class="programs-grid">
+                    <div class="program-card" v-for="program in programs" :key="program.id"
+                         :class="{ 'animate': programsAnimated }">
+                        <div class="program-image">
+                            <i :class="program.icon"></i>
+                        </div>
+                        <div class="program-content">
+                            <h3>{{ program.title }}</h3>
+                            <p>{{ program.description }}</p>
+                            <button class="program-btn">المزيد</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم فريقنا -->
+        <section id="teams" class="section dark-section">
+            <div class="container">
+                <h2 class="section-title">فريقنا</h2>
+                <div class="team-grid">
+                    <div class="team-member" v-for="member in team" :key="member.id"
+                         :class="{ 'animate': teamAnimated }">
+                        <div class="member-photo">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="member-info">
+                            <h3>{{ member.name }}</h3>
+                            <p>{{ member.position }}</p>
+                            <div class="member-social">
+                                <a v-for="social in member.social" :key="social.platform" :href="social.link">
+                                    <i :class="social.icon"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم تواصل معنا -->
+        <section id="contact" class="section">
+            <div class="container">
+                <h2 class="section-title">تواصل معنا</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item" v-for="info in contactInfo" :key="info.type">
+                            <i :class="info.icon"></i>
+                            <div>
+                                <h4>{{ info.title }}</h4>
+                                <p>{{ info.value }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact-form" @submit.prevent="submitForm">
+                        <input type="text" v-model="form.name" placeholder="الاسم الكامل" required>
+                        <input type="email" v-model="form.email" placeholder="البريد الإلكتروني" required>
+                        <textarea v-model="form.message" placeholder="رسالتك" rows="5" required></textarea>
+                        <button type="submit">إرسال الرسالة</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- التذييل -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <i class="fas fa-honeycomb"></i>
+                        <span>مؤسسة نحل</span>
+                    </div>
+                    <div class="footer-links">
+                        <a v-for="link in footerLinks" :key="link.text" :href="link.href">{{ link.text }}</a>
+                    </div>
+                    <div class="footer-social">
+                        <a v-for="social in socialLinks" :key="social.platform" :href="social.link">
+                            <i :class="social.icon"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 مؤسسة نحل. جميع الحقوق محفوظة.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
